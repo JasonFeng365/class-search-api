@@ -22,8 +22,7 @@ app.get("/:year/:term/:campus/:id", (req, res) => {
   var nextIsNowTerm = false;
   var nowTerm;
 
-  axios
-    .get("https://ssb.sierracollege.edu:8810/PROD/pw_sigsched.p_Search")
+  axios.get("https://ssb.sierracollege.edu:8810/PROD/pw_sigsched.p_Search")
     .then((response) => {
       const data = response.data;
       const html = cheerio.load(data);
@@ -38,6 +37,7 @@ app.get("/:year/:term/:campus/:id", (req, res) => {
           array[0].toLowerCase() == req.params.term.toLowerCase()
         ) {
           term = id;
+
         }
         if (id == "X") {
           nextIsNowTerm = true;
@@ -46,11 +46,19 @@ app.get("/:year/:term/:campus/:id", (req, res) => {
           nextIsNowTerm = false;
           nowTerm = id;
         }
-      });
+      });//end foreach
+
       if (term === -1) term = nowTerm;
-    });
-  var array = [term, req.params.campus, req.params.id];
-  res.json(array);
-});
+      var array = [term, req.params.campus, req.params.id];
+      console.log(term)
+      res.json(array);
+      return array
+    })
+
+    console.log(term+" async")
+
+
+
+});//END GET
 
 app.listen(PORT, () => console.log("Running on PORT " + PORT));
