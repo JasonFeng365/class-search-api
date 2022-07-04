@@ -16,10 +16,11 @@ function arrayContains(array, param){
 }
 
 function defaultMessage(res){
-  res.json(
-    "Usage: /<year>/<term>/<campus>\n" +
-      "Headers:    subj: 2-4 letter subject ID  |  course: number of course  |  crn: 5-digit course number  |  title: name of course"+
-      "Examples: /2022/fall/rocklin?subj=csci&course=13   /2022/summer/rocklin/csci?course=csci   /2022/summer/rocklin/csci?course=csci"
+  res.json([
+    "Usage: /<year>/<term>/<campus>",
+      "Headers:    subj: 2-4 letter subject ID  |  course: number of course  |  crn: 5-digit course number  |  title: name of course",
+      "Examples: /2022/fall/rocklin?subj=csci&course=13   /2022/summer/rocklin?course=csci   /2022/summer/rocklin?course=csci"
+  ]
   );
 }
 
