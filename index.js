@@ -1,6 +1,6 @@
 console.log("Executing program");
 
-const PORT = 8810;
+const PORT = process.env.PORT || 8810;
 const express = require("express");
 const axios = require("axios");
 const cheerio = require("cheerio");
