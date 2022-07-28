@@ -71,8 +71,7 @@ app.get("/:year/:term/:campus", (req, res) => {
 		count++;
 	}
 	if (req.query.course != null) {
-		course = req.query.course.toLowerimage.png
-		Case();
+		course = req.query.course.toLowerCase();
 		count++;
 	}
 	if (req.query.crn != null) {
@@ -286,7 +285,7 @@ function finalCall(term, campus, instructor, subj, course, crn, title, res) {
 			});
 
 			output.push({
-				name: c[0].trim(),
+				name: c[0].replace("  ", " ").trim(),
 				status: c[1].trim(),
 				crn: c[2].trim(),
 				cred: c[3].trim(),
@@ -299,7 +298,7 @@ function finalCall(term, campus, instructor, subj, course, crn, title, res) {
 				dates: c[10].trim(),
 				weeks: c[11].trim(),
 				book: c[12].trim(),
-				notes: c[13],
+				notes: c[13].trim(),
 			});
 		});
 
