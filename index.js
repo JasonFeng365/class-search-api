@@ -1,6 +1,7 @@
 console.log("Executing program");
 
 const PORT = process.env.PORT || 8810;
+// const PORT = 8810;
 const express = require("express");
 const axios = require("axios");
 const cheerio = require("cheerio");
@@ -9,6 +10,29 @@ const app = express();
 
 const campuses = ["rocklin", "nevada", "ncc", "distance", "tahoe-truckee", "tahoe", "truckee", "roseville"];
 const campusIDs = [10, 20, 20, 80, 40, 40, 40, 30];
+
+function removeExtraSpaces(string){
+	var out = string.replace(/\s{2,}/g, ' ')
+	return out.trim()
+}
+
+function termsEqual(term1, term2){
+	var days1 = term1.meetingDays.join('')
+	var days2 = term2.meetingDays.join('')
+	return days1 == days2 &&
+		term1.meetingTimes == term2.meetingTimes && 
+		term1.classroom == term2.classroom && 
+		term1.date == term2.date
+}
+
+function removeSameTerms(termArray){
+	for (let i = termArray.length - 2; i >= 0; i--){
+		if (termsEqual(termArray[i], termArray[i+1])){
+			termArray.splice(i, 1);
+		}
+	}
+	return termArray;
+}
 
 function getID(param) {
 	var lower = param.toLowerCase();
@@ -113,7 +137,7 @@ function professorCall(term, campus, subj, course, crn, title, fname, lname, res
 						var array = html(this).text().toLowerCase().split(", ");
 
 						if (array[1].includes(fname) && array[0].includes(lname)) {
-							console.log("Found professor");
+							// console.log("Found professor");
 							found = true;
 							finalCall(term, campus, html(this).attr("value"), subj, course, crn, title, res);
 							return;
@@ -268,35 +292,57 @@ function finalCall(term, campus, instructor, subj, course, crn, title, res) {
 		}
 
 		var output = [];
-		responseArray.forEach((c) => {
+		responseArray.forEach((c) => { //For every individual class...
 			var session = c[5];
 			var timesArray = [];
 			session.forEach((element) => {
-				var dates = element[element.length - 1];
-				var room = element[element.length - 2];
-				var times = element[element.length - 3];
-				var weekdays = element.slice(0, element.length - 3);
+				var dates = element[element.length - 1]
+				var room = element[element.length - 2]
+				var times = element[element.length - 3]
+				var weekdays = element.slice(0, element.length - 3)
 				timesArray.push({
 					meetingDays: weekdays,
-					meetingTimes: times,
-					classroom: room,
-					date: dates,
+					meetingTimes: removeExtraSpaces(times),
+					classroom: removeExtraSpaces(room),
+					date: removeExtraSpaces(dates),
 				});
 			});
 
+			timesArray.sort((c1, c2)=>{
+				// var days1 = c1.meetingDays.length > 0 ? c1.meetingDays.join('') : ""
+				// var days2 = c2.meetingDays.length > 0 ? c2.meetingDays.join('') : ""
+				
+				var days1 = c1.meetingDays.join('')
+				var days2 = c2.meetingDays.join('')
+
+				var comparison = days1.localeCompare(days2);
+				if (comparison != 0) return comparison;
+
+				comparison = c1.meetingTimes.localeCompare(c2.meetingTimes);
+				if (comparison != 0) return comparison;
+
+				comparison = c1.classroom.localeCompare(c2.classroom);
+				if (comparison != 0) return comparison;
+
+				comparison = c1.date.localeCompare(c2.date);
+				return comparison;
+			})
+
+			timesArray = removeSameTerms(timesArray)
+
 			output.push({
-				name: c[0].replace("  ", " ").trim(),
-				status: c[1].trim(),
-				crn: c[2].trim(),
-				cred: c[3].trim(),
-				textbookCost: c[4].trim(),
-				meetingTimes: timesArray,
-				max: c[6].trim(),
-				enrolled: c[7].trim(),
-				waitlisted: c[8].trim(),
-				instructor: c[9].trim(),
-				dates: c[10].trim(),
-				weeks: c[11].trim(),
+				name: removeExtraSpaces(c[0]),
+				status: removeExtraSpaces(c[1]),
+				crn: removeExtraSpaces(c[2]),
+				cred: removeExtraSpaces(c[3]),
+				textbookCost: removeExtraSpaces(c[4]),
+				sessions: timesArray,
+				max: parseInt(removeExtraSpaces(c[6])),
+				enrolled: parseInt(removeExtraSpaces(c[7])),
+				waitlisted: parseInt(removeExtraSpaces(c[8])),
+				instructor: removeExtraSpaces(c[9]),
+				dates: removeExtraSpaces(c[10]),
+				weeks: removeExtraSpaces(c[11]),
 				book: c[12].trim(),
 				notes: c[13].trim(),
 			});
@@ -305,6 +351,9 @@ function finalCall(term, campus, instructor, subj, course, crn, title, res) {
 		res.json(output);
 		return;
 	})
-	.catch((err) => errorMessage(res));
+	.catch((err) => {
+		console.log(err)
+		errorMessage(res)
+	});
 }
 app.listen(PORT, () => console.log("Running on PORT " + PORT));
