@@ -39,7 +39,7 @@ function getID(param) {
 	for (var i = 0; i < campuses.length; i++) {
 		if (campuses[i] == lower) return campusIDs[i];
 	}
-	return "%";
+	return "%25";
 }
 
 function defaultMessage(res) {
@@ -119,7 +119,7 @@ app.get("/:year/:term/:campus", (req, res) => {
 		return;
 	}
 
-	finalCall(term, campus, "", subj, course, crn, title, res);
+	finalCall(term, campus, "%25", subj, course, crn, title, res);
 }); //END GET METHOD
 
 function professorCall(term, campus, subj, course, crn, title, fname, lname, res) {
@@ -150,7 +150,11 @@ function professorCall(term, campus, subj, course, crn, title, fname, lname, res
 			}
 		});
 	})
-	.catch(err=>errorMessage(res))
+	.catch(err=>{
+		console.log("Error occurred")
+		console.log(requestURL)
+		errorMessage(res)
+	})
 }
 
 function finalCall(term, campus, instructor, subj, course, crn, title, res) {
@@ -349,10 +353,12 @@ function finalCall(term, campus, instructor, subj, course, crn, title, res) {
 		});
 
 		res.json(output);
+		console.log(requestURL)
 		return;
 	})
 	.catch((err) => {
-		console.log(err)
+		console.log("Error parsing")
+		console.log(requestURL)
 		errorMessage(res)
 	});
 }
