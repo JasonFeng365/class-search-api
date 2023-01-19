@@ -26,19 +26,16 @@ function termsEqual(term1, term2){
 }
 
 function removeSameTerms(termArray){
-	for (let i = termArray.length - 2; i >= 0; i--){
-		if (termsEqual(termArray[i], termArray[i+1])){
+	for (let i = termArray.length - 2; i >= 0; i--)
+		if (termsEqual(termArray[i], termArray[i+1]))
 			termArray.splice(i, 1);
-		}
-	}
 	return termArray;
 }
 
 function getID(param) {
 	var lower = param.toLowerCase();
-	for (var i = 0; i < campuses.length; i++) {
+	for (var i = 0; i < campuses.length; i++)
 		if (campuses[i] == lower) return campusIDs[i];
-	}
 	return "%25";
 }
 
@@ -48,7 +45,7 @@ function defaultMessage(res) {
 		"Usage: /<year>/<term>/<campus><headers>",
 		"Use at least one header: subj: 2-4 letter subject ID | course: number of course | crn: 5-digit course number | title: name of course",
 		"fname and lname: First and last names, if searching by professor. Both are necessary.",
-		"Examples: /2022/fall/rocklin?subj=csci&course=13   /2022/summer/rocklin?course=csci   /2022/summer/rocklin?course=csci",
+		"Examples: /2022/fall/rocklin?subj=csci&course=13   /2023/spring/rocklin?fname=barry&lname=brown&title=discrete%20structures",
 	]);
 }
 function errorMessage(res) {
@@ -313,9 +310,6 @@ function finalCall(term, campus, instructor, subj, course, crn, title, res) {
 			});
 
 			timesArray.sort((c1, c2)=>{
-				// var days1 = c1.meetingDays.length > 0 ? c1.meetingDays.join('') : ""
-				// var days2 = c2.meetingDays.length > 0 ? c2.meetingDays.join('') : ""
-				
 				var days1 = c1.meetingDays.join('')
 				var days2 = c2.meetingDays.join('')
 
@@ -352,7 +346,18 @@ function finalCall(term, campus, instructor, subj, course, crn, title, res) {
 			});
 		});
 
-		res.json(output);
+		var queryParams = {
+
+		};
+
+		var outputObject = {
+			length: output.length,
+			data: output,
+			parameters: queryParams,
+			queryTime: new Date()
+		};
+		
+		res.json(outputObject);
 		console.log(requestURL)
 		return;
 	})
@@ -363,3 +368,5 @@ function finalCall(term, campus, instructor, subj, course, crn, title, res) {
 	});
 }
 app.listen(PORT, () => console.log("Running on PORT " + PORT));
+
+module.exports = app;

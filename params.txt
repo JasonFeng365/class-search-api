@@ -1,0 +1,4 @@
+term, campus, instructor, subj, course, crn, title
+requestURL
+
+if instructor == "%25", instructorID: null

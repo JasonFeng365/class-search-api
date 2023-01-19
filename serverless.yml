@@ -1,0 +1,17 @@
+service: class-search-api
+frameworkVersion: '3'
+
+provider:
+  name: aws
+  runtime: nodejs12.x
+  memorySize: 128
+  timeout: 10
+  region: us-west-1
+
+
+functions:
+  hello:
+    handler: handler.classSearchAPI
+    events:
+     - http: ANY /{proxy+}
+     - http: ANY /
